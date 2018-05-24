@@ -1,0 +1,296 @@
+% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
+%
+% In principle, this file can be redistributed and/or modified under
+% the terms of the GNU Public License, version 2.
+%
+% However, this file is supposed to be a template to be modified
+% for your own needs. For this reason, if you use this file as a
+% template and not specifically distribute it as part of a another
+% package/program, I grant the extra permission to freely copy and
+% modify this file as you see fit and even to delete this copyright
+% notice. 
+
+\documentclass{beamer}
+
+% There are many different themes available for Beamer. A comprehensive
+% list with examples is given here:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+% You can uncomment the themes below if you would like to use a different
+% one:
+%\usetheme{AnnArbor}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{boxes}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{default}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+\usepackage{xcolor}
+\setbeamercovered{transparent}
+\usepackage{amsmath}
+\usepackage{eucal}
+
+\defbeamertemplate*{footline}{mytheme}
+{
+    \leavevmode%
+          \hbox{%
+              \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{section in head/foot}%
+                  \usebeamerfont{author in head/foot}~{Mohammed~Khatiri}
+              \end{beamercolorbox}%
+              \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{section in head/foot}%
+                  \usebeamerfont{author in head/foot}~\insertshorttitle{}
+              \end{beamercolorbox}%
+              \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,right]{section in head/foot}%
+                  \usebeamerfont{date in head/foot}
+                  \insertframenumber{} / \inserttotalframenumber\hspace*{2ex} 
+              \end{beamercolorbox}}%
+                  \vskip0pt%
+              }
+\usebeamertemplate{mytheme}
+
+
+
+\title{A new analysis of Work Stealing with latency}
+
+% A subtitle is optional and this may be deleted
+\subtitle{Work Stealing with latency}
+
+\author{Nicolas~Gast\inst{1} \and \textcolor{red}{Mohammed~Khatiri}\inst{1}\inst{2} \and Denis~Trystram\inst{1} \and Frédéric~Wagner\inst{1}}
+% - Give the names in the same order as the appear in the paper.
+% - Use the \inst{?} command only if the authors have different
+%   affiliation.
+
+\institute[Univ. Grenoble Alpes, CNRS, Inria, LIG] % (optional, but mostly needed)
+{
+    \inst{1}%
+  Univ. Grenoble Alpes\\
+  CNRS, Inria, LIG, France
+  \and
+  \inst{2}%
+  University Mohammed First\\
+  Faculty of Sciences, LaRI, Morocco}
+% - Use the \inst command only if there are several affiliations.
+% - Keep it simple, no one is interested in your street address.
+
+\date{ECCO 2018}
+% - Either use conference name or its abbreviation.
+% - Not really informative to the audience, more for people (including
+%   yourself) who are reading the slides online
+
+%\subject{Theoretical Computer Science}
+% This is only inserted into the PDF information catalog. Can be left
+% out. 
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+% \pgfdeclareimage[height=0.5cm]{university-logo}{university-logo-filename}
+% \logo{\pgfuseimage{university-logo}}
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+\AtBeginSubsection[]
+{
+    \begin{frame}<beamer>{Outline}
+        \tableofcontents[currentsection,currentsubsection]
+    \end{frame}
+}
+
+% Let's get started
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+    \tableofcontents
+    % You might wish to add the option [pausesections]
+\end{frame}
+
+% Section and subsections will appear in the presentation overview
+% and table of contents.
+\section{Context}
+
+\subsection{Objectives}
+
+\begin{frame}{Objectives of the talk}
+    \begin{itemize}[<+->]
+        \item {
+               Study the Work Stealing algorithm in a Distributed-memory plates-form where communications matter. 
+            }\\ 
+        \item {
+
+               Create new realistic model for distributed-memory cluster of $p$ identical processors including communication latency. 
+            }\\          
+
+        \item {
+                Provide an upper bound of the expected makespan
+            }
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Scheduling}
+    \begin{block}{Problem}
+        The scheduling problem is to answer the two following questions
+        for each of the n independent tasks which represents an application.
+        \begin{itemize}
+            \item \alert{Where?} – determine the computing resources for executing each task.
+            \item \alert{When?} – determined when each task will begin. 
+
+        \end{itemize}
+    \end{block}
+    How schedulers $n$ tasks on $p$ processors ?
+    \begin{itemize}
+        \item \textbf{WHERE is crucial} : The load between resources must be balanced. 
+        \item Need a dynamic algorithm to determine such an assignment.
+
+    \end{itemize}
+\end{frame}
+
+
+
+%\subsection{The classical problem}
+
+% You can reveal the parts of a slide one at a time
+% with the \pause command:
+\begin{frame}{The classical problem}
+    \begin{itemize}
+        \item { Workload $\mathcal{W}$ of $n$ unit independent tasks.}
+        \item { \emph{p} identical processors in distributed-memory cluster.  }                                     
+        \item { Each processor has its private memory}
+        \item { Processors are linked by an interconnection network}                                     
+    \end{itemize}
+        
+        \begin{block}{Makespan}
+            The optimized objective is the completion time of the $n$ tasks Which called the \alert{Makespan} and denoed by \alert{$C_{max}$}.
+        \end{block}
+        
+     \begin{itemize}
+         \item \alert{ Communication cost between processors is most often ignored. }                                     
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Work Stealing algorithm}
+
+ \begin{itemize}
+     \item \alert{Decentralized list scheduling algorithm.}
+         \pause
+        \item { Each processor has its own queue of tasks}                                     
+            \pause
+        \item { An active processor (non-empty tasks queue) executes tasks from its queue.}
+            \pause
+        \item { An idle processor with empty queue (Stealer) randomly chooses another processor (victim) to steal some work:}                                     
+            \pause
+            \begin{itemize}
+                \item {If the victim’s queue is non empty, the thief steals half of the tasks and resumes execution at the next time slot}
+                    \pause
+                \item {Otherwise, the thief tries again at the next time slot}
+            \end{itemize}
+        \pause 
+        \item {If several thieves target the same victim a random succeed, others fail.} 
+
+    \end{itemize}
+\end{frame}
+
+
+\subsection{Previous Work}
+
+\begin{frame}{Previous Work}
+    \color{blue} {[Blumofe and Leiserson 1999, Arora et al. 2001  ]}
+        \begin{itemize}        
+            \item Bound the expected Makespan of a series-parallel precedence graph with $\mathcal{W}$ unit tasks on $p$ processors
+             \item $E(C_{\max}) \leq \frac{\mathcal{W}}{p}+\mathcal{O}(D)$  Where $D$ is the length of the critical path of the graph.
+        \end{itemize}  
+    \color{blue} [Tchiboukdjian et al. 2013] 
+         \begin{itemize}        
+             \item $\mathcal{W}$ unit independent tasks on $p$ processors (communication cost is ignored).  
+             \item $E(C_{\max}) \leq \frac{\mathcal{W}}{p}+c.(\log_2 \mathcal{W})+\Theta(1)$ where $c=3.24$ 
+        \end{itemize}  
+
+        \alert{Need a precise analysis of work stealing when communication is no-ignored}
+\end{frame}
+
+\section{Extend to Work Stealing with communications cost}
+
+\begin{frame}{problem}
+    \begin{alertblock}{ }
+        
+    \end{alertblock}
+  \begin{itemize}
+        \item {workload $\mathcal{w}$ of $n$ unit independent tasks.}
+        \item {\emph{p} identical processors in distributed-memory cluster
+            \alert{with explicit communication}.}
+        \item {processors are linked by an interconnection network}
+        \item {to simplify the processors are linked by an interconnection network}
+
+
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Model with communications cost (latency)}
+
+\end{frame}
+
+\begin{frame}{Analysis}
+\end{frame}
+
+\begin{frame}{Experimental Results}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Conclusion and Perspective}
+    Conclusion
+  \begin{itemize}
+        \item 
+        \item 
+        \item 
+    \end{itemize}
+       
+   Perspective
+  \begin{itemize}
+        \item 
+        \item 
+        \item 
+    \end{itemize}
+\end{frame}
+
+
+
+
+
+
+% Placing a * after \section means it will not show in the
+% outline or table of contents.
+\section*{Summary}
+
+
+\end{document}
+
+
+
