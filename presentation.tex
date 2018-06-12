@@ -46,8 +46,10 @@
 %\usetheme{Warsaw}
 \usepackage{xcolor}
 \setbeamercovered{transparent}
-\usepackage{amsmath}
+\usepackage{amsmath,amsfonts,amssymb}
 \usepackage{eucal}
+\usepackage{graphics}
+\usepackage{tikz}
 
 \defbeamertemplate*{footline}{mytheme}
 {
@@ -69,12 +71,12 @@
 
 
 
-\title{A new analysis of Work Stealing with latency}
+\title{Analysis of Work Stealing with latency}
 
 % A subtitle is optional and this may be deleted
 \subtitle{Work Stealing with latency}
 
-\author{Nicolas~Gast\inst{1} \and \textcolor{red}{Mohammed~Khatiri}\inst{1}\inst{2} \and Denis~Trystram\inst{1} \and Frédéric~Wagner\inst{1}}
+\author{Nicolas~Gast\inst{1} \and \textcolor{red}{Mohammed~Khatiri}\inst{1}\inst{2} \and Denis~Trystram\inst{1} \and Fr\'ed\'eric~Wagner\inst{1}}
 % - Give the names in the same order as the appear in the paper.
 % - Use the \inst{?} command only if the authors have different
 %   affiliation.
@@ -82,12 +84,10 @@
 \institute[Univ. Grenoble Alpes, CNRS, Inria, LIG] % (optional, but mostly needed)
 {
     \inst{1}%
-  Univ. Grenoble Alpes\\
-  CNRS, Inria, LIG, France
+  Univ. Grenoble Alpes, France
   \and
   \inst{2}%
-  University Mohammed First\\
-  Faculty of Sciences, LaRI, Morocco}
+  University Mohammed I -- Faculty of Sciences, Morocco}
 % - Use the \inst command only if there are several affiliations.
 % - Keep it simple, no one is interested in your street address.
 
@@ -130,41 +130,86 @@
 
 % Section and subsections will appear in the presentation overview
 % and table of contents.
-\section{Context}
+\section{Context \& Related Work}
+\section{Model with communications latency}
+\section{Analysis}
+\section{Experimental Results}
+\section{Conclusion}
 
-\subsection{Objectives}
+\begin{frame}{Preliminary}
+    \begin{figure}
+    \begin{center}
+        \only<1>{ \includegraphics[width=0.7\textwidth]{Scheduling.png}}
+        \only<2->{ \includegraphics[width=0.3\textwidth]{Scheduling.png}}
+    \end{center}
+    \end{figure}
 
-\begin{frame}{Objectives of the talk}
-    \begin{itemize}[<+->]
+    \pause
+    \begin{columns} 
+        \column{0.5\textwidth} 
+      \begin{center}
+          \only<2->{      \textbf{Centralized List}\\}
+          \only<3->{      \textbf{\alert{List Algorithm}}}
+        \end{center}
+    \begin{figure}
+    \begin{center}
+        \only<2->{\includegraphics[width=0.3\textwidth]{Scheduling1.png}}
+        \only<3->{\includegraphics[width=0.4\textwidth]{Scheduling2.png}}
+    \end{center}
+    \end{figure}
+
+        \column{0.5\textwidth} 
+        \begin{center}
+            \only<4->{   \textbf{Decentralized List}\\}
+            \only<5->{   \textbf{\alert{Work Stealing Algorithm}}}
+        \end{center}
+    \begin{figure}
+    \begin{center}
+        \only<4> {\includegraphics[width=0.4\textwidth]{SchedulingD1.png}}
+        \only<5-> {\includegraphics[width=0.4\textwidth]{SchedulingD2.png}}
+        \only<5> {\includegraphics[width=0.4\textwidth]{SchedulingDS1.png}}
+    \end{center}
+    \end{figure}
+    \end{columns} 
+
+
+\end{frame}
+
+
+\begin{frame}{Objectives and Content}
+    \begin{itemize}%[<+->]
         \item {
-               Study the Work Stealing algorithm in a Distributed-memory plates-form where communications matter. 
-            }\\ 
+               Study the Work Stealing algorithm in distributed-memory platforms where communications matter. 
+            }
         \item {
 
-               Create new realistic model for distributed-memory cluster of $p$ identical processors including communication latency. 
-            }\\          
-
+               Create a new realistic model for distributed-memory cluster of $p$ identical processors including communication latency. 
+            }
         \item {
-                Provide an upper bound of the expected makespan
+                Provide an upper bound of the expected Makespan.
+            }
+        \item {
+               Provide simulation results to assess this bound. 
             }
     \end{itemize}
 \end{frame}
 
 
-\begin{frame}{Scheduling}
-    \begin{block}{Problem}
+\begin{frame}{Context}
+    \begin{block}{Scheduling Problem}
         The scheduling problem is to answer the two following questions
         for each of the n independent tasks which represents an application.
         \begin{itemize}
             \item \alert{Where?} – determine the computing resources for executing each task.
-            \item \alert{When?} – determined when each task will begin. 
+            \item \alert{When?} – determined when each task will start. 
 
         \end{itemize}
     \end{block}
-    How schedulers $n$ tasks on $p$ processors ?
+\bigskip
+
     \begin{itemize}
-        \item \textbf{WHERE is crucial} : The load between resources must be balanced. 
-        \item Need a dynamic algorithm to determine such an assignment.
+        \item \textbf{WHERE is crucial} since the load between resources must be balanced. 
+        \item The are several possibilities: centralized decision, static or dynamic algorithm to determine such an assignment.
 
     \end{itemize}
 \end{frame}
@@ -175,119 +220,326 @@
 
 % You can reveal the parts of a slide one at a time
 % with the \pause command:
-\begin{frame}{The classical problem}
+\begin{frame}{Setting of the problem}
     \begin{itemize}
-        \item { Workload $\mathcal{W}$ of $n$ unit independent tasks.}
-        \item { \emph{p} identical processors in distributed-memory cluster.  }                                     
+        \item { Workload $\mathcal{W}$ composed of $n$ unit independent tasks.}
+        \item { \emph{p} identical processors in a distributed-memory cluster.  }                                     
         \item { Each processor has its private memory}
-        \item { Processors are linked by an interconnection network}                                     
+        \item { The processors are linked by an interconnection network}                                     
     \end{itemize}
         
         \begin{block}{Makespan}
-            The optimized objective is the completion time of the $n$ tasks Which called the \alert{Makespan} and denoed by \alert{$C_{max}$}.
+            The optimized objective is the completion time of the $n$ tasks which called the \alert{makespan} and denoted by \alert{$C_{max}$}.
         \end{block}
         
      \begin{itemize}
          \item \alert{ Communication cost between processors is most often ignored. }                                     
-    \end{itemize}
+     \end{itemize}
 
 \end{frame}
 
-\begin{frame}{Work Stealing algorithm}
+\begin{frame}{Classical Work Stealing algorithm}
 
  \begin{itemize}
-     \item \alert{Decentralized list scheduling algorithm.}
-         \pause
+     \item \textbf{Decentralized list scheduling algorithm.}
         \item { Each processor has its own queue of tasks}                                     
-            \pause
-        \item { An active processor (non-empty tasks queue) executes tasks from its queue.}
-            \pause
-        \item { An idle processor with empty queue (Stealer) randomly chooses another processor (victim) to steal some work:}                                     
-            \pause
-            \begin{itemize}
-                \item {If the victim’s queue is non empty, the thief steals half of the tasks and resumes execution at the next time slot}
+        \item { An active processor (defined as a non-empty tasks queue) executes tasks from its queue.}
+        \item { An idle processor with empty queue (\alert{Stealer}) randomly chooses another processor (\alert{Victim}) to steal some work:}                                     
                     \pause
-                \item {Otherwise, the thief tries again at the next time slot}
+            \begin{itemize}
+                \item {If the victim's queue is not empty, the stealer steals half of the tasks and resumes execution at \textbf{the next time slot}}
+                \item {Otherwise, the stealer tries again to steal at \textbf{the next time slot}}
             \end{itemize}
-        \pause 
-        \item {If several thieves target the same victim a random succeed, others fail.} 
+        \item {If several stealers target the same victim, a random succeeds and the others fail.} 
 
     \end{itemize}
 \end{frame}
 
 
-\subsection{Previous Work}
-
-\begin{frame}{Previous Work}
+\begin{frame}{Related Work (in brief)}
     \color{blue} {[Blumofe and Leiserson 1999, Arora et al. 2001  ]}
         \begin{itemize}        
-            \item Bound the expected Makespan of a series-parallel precedence graph with $\mathcal{W}$ unit tasks on $p$ processors
-             \item $E(C_{\max}) \leq \frac{\mathcal{W}}{p}+\mathcal{O}(D)$  Where $D$ is the length of the critical path of the graph.
+            \item Bound the expected Makespan of a series-parallel precedence graph with $\mathcal{W}$ unit tasks on $p$ processors.
+             \item $E(C_{\max}) \leq \frac{\mathcal{W}}{p}+\mathcal{O}(D)$  Where $D$ is the length of the \alert{critical path} of the graph.
         \end{itemize}  
-    \color{blue} [Tchiboukdjian et al. 2013] 
+    \color{blue} [Tchiboukdjian \textit{et al.} 2013] 
          \begin{itemize}        
              \item $\mathcal{W}$ unit independent tasks on $p$ processors (communication cost is ignored).  
-             \item $E(C_{\max}) \leq \frac{\mathcal{W}}{p}+c.(\log_2 \mathcal{W})+\Theta(1)$ where $c=3.24$ 
+             \item $E(C_{\max}) \leq \frac{\mathcal{W}}{p}+c.(\log_2 \mathcal{W})+\Theta(1)$ where $c \simeq3.24$ 
         \end{itemize}  
 
         \alert{Need a precise analysis of work stealing when communication is no-ignored}
 \end{frame}
 
-\section{Extend to Work Stealing with communications cost}
-
-\begin{frame}{problem}
-    \begin{alertblock}{ }
-        
+\begin{frame}{Problem}
+    \begin{alertblock}{Problem}
+        \begin{itemize}
+            \item When the communication cost is not ignored, the steal work takes more than one unit of time. \\
+            \item The stealer takes more time to receive the answer from the victim. 
+            \item The stealer must wait several time steps before receiving the answer. 
+        \end{itemize}
     \end{alertblock}
-  \begin{itemize}
-        \item {workload $\mathcal{w}$ of $n$ unit independent tasks.}
-        \item {\emph{p} identical processors in distributed-memory cluster
-            \alert{with explicit communication}.}
-        \item {processors are linked by an interconnection network}
-        \item {to simplify the processors are linked by an interconnection network}
+    \textbf{Question :}
+    \\
+        What happens when the communication cost is explicit?
+\end{frame} 
 
 
+\begin{frame}{Model with communications cost (latency)}
+  %\begin{itemize}
+   %     \item {Workload $\mathcal{W}$ of $n$ unit independent tasks.}
+   %    \item {Distributed-memory cluster with $p$ identical processor.}
+   %     \item {Processors are linked by an interconnection network}
+   %     \item {All communication between processors takes a time $\lambda$ that we called the \alert{latency}}
+   % \end{itemize}
+    \begin{alertblock}{Objective}
+       Analyze \alert{Work Stealing} algorithm to execution a workload $\mathcal{W}$ of $n$ unit tasks on a distributed-memory cluster with $p$ identical processors and communications between them take \alert{latency $\lambda$} unit of times.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Work stealing algorithm with communications (latency)}
+    \begin{itemize}
+        \item \textbf{Principe of Work stealing (Recall)} 
+            \begin{itemize}
+                \item Each processor has its own queue of tasks
+                \item An active processor with \textbf{not-empty} queue executes tasks from its queue
+                \item When a processor becomes \textbf{idle}, it chooses randomly another processor (Victim) to steal work
+            \end{itemize}
+                
+        \item \textbf{Latency }   
+            \begin{itemize}
+                \item A work request takes a time \textbf{$\lambda$ (latency)}
+                \item The answer takes again $\lambda$ units of time (fail answer or work answer)
+            \end{itemize}
+        \item \textbf{Steal threshold:}
+            \begin{itemize}
+                \item If the victim has less than $\lambda$ units of work, the steal request fails.
+            \end{itemize}
+            
+        \item \textbf{Single work transfer}
+            \begin{itemize}
+                \item While a processor sends some work to a stealer, it replies by a fail request to all other steal requests. 
+            \end{itemize}
     \end{itemize}
 \end{frame}
 
-\begin{frame}{Model with communications cost (latency)}
-
+\begin{frame}{Analysis}
+    We consider a discrete model with: 
+    \begin{itemize}
+        \item $p$ processors indexed by $i$ where  $i \in [1...p]$.
+        \item All communications between the processors take a time $\lambda$.
+        \item $\mathcal{W}_i(t) \in [1,2,...]$ the amount of work on processor $P_i$ at time $t$.
+        \item $\mathcal{W}(t) = \sum_{i=1}^{p} \mathcal{W}_i(t)$ the total amount of Work on all the processors. 
+        \item $\mathcal{S}_i(t)$ the amount of Work in transit from $P_i$ at time $t$ to another stealer. 
+        \item At $t=0$ the whole work is on $P_1$ and $\mathcal{W} = \mathcal{W}_1(0)$ 
+    \end{itemize}
+    \bigskip
+    
+    \begin{block}{Theorem}
+  %      Let $C_{max}$ be the Makespan. Then, deja dit...
+        \begin{equation*}   
+            \mathbb{E}(C_{max}) \leq \frac{\mathcal{W}}{p} +  c\lambda\log_2(\frac{\mathcal{W}}{2\lambda}) + 3\lambda
+        \end{equation*}             where $c \leq 16.12$ 
+    \end{block}
 \end{frame}
 
-\begin{frame}{Analysis}
+\begin{frame}{Principle of the analysis (1)}
+    \begin{columns} 
+        \column{0.45\textwidth} 
+        \begin{center}
+            \includegraphics[width=1\textwidth]{ws.pdf}
+        \end{center}
+        \column{0.55\textwidth} 
+        \begin{center} 
+            $pC_{\max} \le \mathcal{W} + 2\lambda\#\textit{StealRequests}$
+%            Where $\mathcal{W}, p, \lambda$ are the total amount of work, the total number of processors and the communication latency respectively. 
+        \end{center} 
+        \begin{equation}
+            C_{max}  \leq \frac{\mathcal{W}}{p} + 2\lambda\frac{\#StealRequests}{p}
+        \end{equation} 
+    \end{columns} 
+    \begin{center}
+    To bound \alert{$C_{max}$}, we need to bound \alert{$\#StealRequests$}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}{Principle of the analysis (2)}
+    The analysis is based on a \textbf{potential function} that represents \textit{how well the jobs are balanced in the system}.\\
+
+    Our potential function at time-step $k\lambda$ is denoted by $\phi(k)$ and it is defined as:
+    \begin{equation*}
+        \phi(k) = \sum_{i=1}^{p} \phi_i(k),  
+        \text{ where $\phi_i(k) =
+         \mathcal{W}_{i}(k\lambda)^{2} + 2\mathcal{S}_{i}(k\lambda)^{2}$ \quad for $i\in\{1\dots,p\}$}. 
+    \end{equation*}
+    \bigskip
+    
+    \textbf{Properties}
+    \begin{itemize}
+        \item Always decreases. 
+        \item It is maximal at time 0, $\phi(0)= \mathcal{W}^2$
+        \item Becomes $0$ at the end of schedule. 
+        \item Decreases according to each processor event (executing work, sending or answering steal request) 
+    \end{itemize}
+    
+    \textbf{Analysis method}\\
+
+    \alert{ We analyse how much each case contributes to the decrease of the potential between \alert{$\lambda k$} and \alert{$\lambda(k+1)$}}
+
+\end{frame}
+\begin{frame}{Principe of the analysis}
+
+\begin{alertblock}{Lemme 1}
+        We denote by $\mathcal{F}_{k}$ all events up to the interval
+
+        For all steps $k$, the expected ratio between $\phi(k+1)$ and $\phi(k)$ knowing $\mathcal{F}_{k}$ is bounded by: 
+        \begin{equation*}
+            \mathbb{E}[\phi(k+1) \:|\: \mathcal{F}_{k}] \leq \left(1-\frac{q(r_k)}{4}\right)\phi(k) 
+            \label{expdiff}
+        \end{equation*}
+
+
+        Where $q(r_k)$ is the probability for a processor to receive one
+        or more steal requests in the interval $[\lambda(k-1),\lambda k]$ knowing that there are $r_k$ incoming steal requests.
+        \begin{equation*}
+            q(r_k) = 1 - \left(\frac{p-2}{p-1}\right)^{r_k}
+            \label{expdiff}
+        \end{equation*}
+        The worst case of $q(r_k)$ is maximal when all the processors send a steal request ($r_k=p-1$)
+        
+        \end{alertblock}
+\end{frame}
+
+
+    \begin{frame}
+        \begin{itemize}
+            \item Using :
+        \begin{itemize}
+            \item The potential function at time 0 and at the end of schedule
+            \item The result of lemme 1.
+        \end{itemize}
+    \item We bound the expected number of steal request between $0$ and the end of schedule.
+                
+    \item Then, we derive the bound of the expected makespan $C_{max}$ using the equation:
+        \begin{equation*}
+            C_{max}  \leq \frac{\mathcal{W}}{p} + 2\lambda\frac{\#StealRequests}{p}
+        \end{equation*} 
+        \end{itemize}
 \end{frame}
 
 \begin{frame}{Experimental Results}
 
+        \begin{equation*}   
+            \mathbb{E}(C_{max}) \leq \alert{\frac{\mathcal{W}}{p}} +  c\lambda\log_2(\frac{\mathcal{W}}{2\lambda}) + 3\lambda
+        \end{equation*}             
+       $ \alert{\frac{\mathcal{W}}{p}} $ \alert{does not depend on the configuration and the algorithm }
+\pause
+    \begin{equation*}
+        \text{ Overhead ratio = } \frac{c\lambda\log_2(\mathcal{W}/2\lambda) + 3\lambda}{Simulation Time - \mathcal{W}/p} 
+    \end{equation*}
+\pause
+
+    \textbf{Simulator : }
+    \begin{itemize}
+        \item A python discrete event simulator.
+        \item The simulator follows the model described to schedule an amount $\mathcal{W}$ of work on a distributed platform with $p$ identical processors 
+        \item The communication cost is equal to the latency $\lambda$
+    \end{itemize}
+    \textbf{Configuration}
+    \begin{itemize}
+        \item  $ 10^5 \leq \alert{\mathcal{W}} \leq 10^8$
+            , $ 32 \leq \alert{p} \leq 256$ and  
+            $ 2 \leq \alert{\lambda} \leq 500$ 
+        \item Each experiment has been reproduced \alert{$1000$} times
+    \end{itemize}
+\end{frame}
+
+%\begin{frame}{Experimental Results}
+ %   \begin{figure}
+%        \only<1> {       \includegraphics[width=0.7\textwidth]{OV-eps-converted-to.png}}
+  %      \includegraphics[width=0.7\textwidth]{OV-eps-converted-to-1.png}
+   %     \caption{Overhead ratio as a function of $(\mathcal{W},p)$
+    %            ($\lambda = 262$)} \label{fig:accuracy}
+   % \end{figure}
+%\end{frame}
+
+\begin{frame}{Experimental Results}
+
+        \begin{figure}
+            %        \only<1> {       \includegraphics[width=0.7\textwidth]{OV-eps-converted-to.png}}
+            \includegraphics[width=0.7\textwidth]{OV-eps-converted-to-1.png}
+            \caption{Overhead ratio as a function of $(\mathcal{W},p)$
+                ($\lambda = 262$)} \label{fig:accuracy}
+        \end{figure}
+        \begin{center}
+        \textbf{Similar observations have been observed with all values of latency used}
+        \end{center}
+
+\end{frame}
+
+
+\begin{frame}{Experimental Results}
+
+    \begin{columns} 
+        \column{0.5\textwidth} 
+        \begin{figure}
+            %        \only<1> {       \includegraphics[width=0.7\textwidth]{OV-eps-converted-to.png}}
+            \includegraphics[width=1\textwidth]{OV-eps-converted-to-1.png}
+        \end{figure}
+            \column{0.5\textwidth} 
+            \textbf{Observations}
+            \begin{itemize}
+                \item Our bound is about \alert{$4$} to \alert{$5.5$} times greater to the one computed by simulation  
+                    \pause
+                \item [\scriptsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}] 
+                    \alert{Because we take the worst case in different cases of the analysis}  
+                    \pause
+                \item The ratio decrease with the number of processors \textbf{but seems fairly independent to $\mathcal{W}$ }
+            \end{itemize}
+    \end{columns}
+            \begin{itemize}
+                    \pause
+                  \item  [\scriptsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}]
+                      \alert{Because in the theoretical bound of the second term, we major the number of processors,
+                      which makes the born independent to the number of processors, 
+                      but it still reacted on the practical terminal. }
+            \end{itemize}
+
 \end{frame}
 
 
 
 
-\begin{frame}{Conclusion and Perspective}
-    Conclusion
-  \begin{itemize}
-        \item 
-        \item 
-        \item 
-    \end{itemize}
-       
-   Perspective
-  \begin{itemize}
-        \item 
-        \item 
-        \item 
-    \end{itemize}
-\end{frame}
+
+
+    \begin{frame}{Conclusion and Perspective}
+        \textbf{Conclusion}
+            \begin{itemize}
+                \item Create a new realistic scheduling model for distributed-memory cluster of $p$ identical processors including latency $\lambda$
+                \item Analyse this model and provide an upper bound of the Makespan  
+                \item Provide simulation results to assess this bound. 
+            \end{itemize}
+
+            \textbf{Perspective}
+
+            \hspace{0.3cm}    This work forms the basis of incoming studies on more complex
+
+            \hspace{0.3cm} hierarchical topologies :
+
+            \begin{itemize}
+                \item Communication cost inside clusters is small
+                \item Communication cost outside clusters is important
+            \end{itemize}
+    \end{frame}
 
 
 
 
 
 
-% Placing a * after \section means it will not show in the
-% outline or table of contents.
-\section*{Summary}
+    % Placing a * after \section means it will not show in the
+    % outline or table of contents.
 
 
 \end{document}
