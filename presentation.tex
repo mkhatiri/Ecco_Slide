@@ -87,11 +87,11 @@
   Univ. Grenoble Alpes, France
   \and
   \inst{2}%
-  University Mohammed I -- Faculty of Sciences, Morocco}
+  University Mohammed First, Morocco}
 % - Use the \inst command only if there are several affiliations.
 % - Keep it simple, no one is interested in your street address.
 
-\date{ECCO 2018}
+\date{16 juin 2018 \\ \textbf{ECCO XXXI - CO 2018}}
 % - Either use conference name or its abbreviation.
 % - Not really informative to the audience, more for people (including
 %   yourself) who are reading the slides online
@@ -109,10 +109,10 @@
 
 % Delete this, if you do not want the table of contents to pop up at
 % the beginning of each subsection:
-\AtBeginSubsection[]
+\AtBeginSection[]
 {
     \begin{frame}<beamer>{Outline}
-        \tableofcontents[currentsection,currentsubsection]
+        \tableofcontents[currentsection]
     \end{frame}
 }
 
@@ -131,46 +131,26 @@
 % Section and subsections will appear in the presentation overview
 % and table of contents.
 \section{Context \& Related Work}
-\section{Model with communications latency}
-\section{Analysis}
-\section{Experimental Results}
-\section{Conclusion}
 
 \begin{frame}{Preliminary}
     \begin{figure}
     \begin{center}
         \only<1>{ \includegraphics[width=0.7\textwidth]{Scheduling.png}}
-        \only<2->{ \includegraphics[width=0.3\textwidth]{Scheduling.png}}
+       % \only<2->{ \includegraphics[width=0.3\textwidth]{Scheduling.png}}
     \end{center}
     \end{figure}
 
-    \pause
-    \begin{columns} 
-        \column{0.5\textwidth} 
-      \begin{center}
-          \only<2->{      \textbf{Centralized List}\\}
-          \only<3->{      \textbf{\alert{List Algorithm}}}
+       \begin{center}
+            \only<2->{   \textbf{Decentralized List}\\}
+            \only<3->{   \textbf{\alert{Work Stealing Algorithm}}}
         \end{center}
     \begin{figure}
     \begin{center}
-        \only<2->{\includegraphics[width=0.3\textwidth]{Scheduling1.png}}
-        \only<3->{\includegraphics[width=0.4\textwidth]{Scheduling2.png}}
+        \only<2> {\includegraphics[width=0.3\textwidth]{SchedulingD1.png}}
+        \only<3-> {\includegraphics[width=0.3\textwidth]{SchedulingD2.png}}
+        \only<3> {\includegraphics[width=0.3\textwidth]{SchedulingDS1.png}}
     \end{center}
     \end{figure}
-
-        \column{0.5\textwidth} 
-        \begin{center}
-            \only<4->{   \textbf{Decentralized List}\\}
-            \only<5->{   \textbf{\alert{Work Stealing Algorithm}}}
-        \end{center}
-    \begin{figure}
-    \begin{center}
-        \only<4> {\includegraphics[width=0.4\textwidth]{SchedulingD1.png}}
-        \only<5-> {\includegraphics[width=0.4\textwidth]{SchedulingD2.png}}
-        \only<5> {\includegraphics[width=0.4\textwidth]{SchedulingDS1.png}}
-    \end{center}
-    \end{figure}
-    \end{columns} 
 
 
 \end{frame}
@@ -195,24 +175,24 @@
 \end{frame}
 
 
-\begin{frame}{Context}
-    \begin{block}{Scheduling Problem}
-        The scheduling problem is to answer the two following questions
-        for each of the n independent tasks which represents an application.
-        \begin{itemize}
-            \item \alert{Where?} – determine the computing resources for executing each task.
-            \item \alert{When?} – determined when each task will start. 
+%\begin{frame}{Context}
+ %   \begin{block}{Scheduling Problem}
+ %       The scheduling problem is to answer the two following questions
+ %       for each of the n independent tasks which represents an application.
+ %       \begin{itemize}
+ %           \item \alert{Where?} – determine the computing resources for executing each task.
+  %          \item \alert{When?} – determined when each task will start. 
 
-        \end{itemize}
-    \end{block}
-\bigskip
+  %      \end{itemize}
+  %  \end{block}
+%\bigskip
 
-    \begin{itemize}
-        \item \textbf{WHERE is crucial} since the load between resources must be balanced. 
-        \item The are several possibilities: centralized decision, static or dynamic algorithm to determine such an assignment.
+ %   \begin{itemize}
+  %      \item \textbf{WHERE is crucial} since the load between resources must be balanced. 
+   %     \item There are several possibilities: centralized decision, static or dynamic algorithm to determine such an assignment.
 
-    \end{itemize}
-\end{frame}
+   % \end{itemize}
+%\end{frame}
 
 
 
@@ -268,9 +248,10 @@
              \item $E(C_{\max}) \leq \frac{\mathcal{W}}{p}+c.(\log_2 \mathcal{W})+\Theta(1)$ where $c \simeq3.24$ 
         \end{itemize}  
 
-        \alert{Need a precise analysis of work stealing when communication is no-ignored}
+        \alert{Need a precise analysis of work stealing when communication is not ignored}
 \end{frame}
 
+\section{Model with communications latency}
 \begin{frame}{Problem}
     \begin{alertblock}{Problem}
         \begin{itemize}
@@ -293,7 +274,7 @@
    %     \item {All communication between processors takes a time $\lambda$ that we called the \alert{latency}}
    % \end{itemize}
     \begin{alertblock}{Objective}
-       Analyze \alert{Work Stealing} algorithm to execution a workload $\mathcal{W}$ of $n$ unit tasks on a distributed-memory cluster with $p$ identical processors and communications between them take \alert{latency $\lambda$} unit of times.
+        Analyze \alert{Work Stealing} algorithm to execute a $\mathcal{W}$ workload of $n$ unit tasks on a distributed-memory cluster with $p$ identical processors and communications between them take \alert{$\lambda$} unit of times (latency).
     \end{alertblock}
 \end{frame}
 
@@ -318,7 +299,7 @@
             
         \item \textbf{Single work transfer}
             \begin{itemize}
-                \item While a processor sends some work to a stealer, it replies by a fail request to all other steal requests. 
+                \item While a victim sends some work to a stealer, it replies by a fail request to all other steal requests. 
             \end{itemize}
     \end{itemize}
 \end{frame}
@@ -327,7 +308,7 @@
     We consider a discrete model with: 
     \begin{itemize}
         \item $p$ processors indexed by $i$ where  $i \in [1...p]$.
-        \item All communications between the processors take a time $\lambda$.
+        \item All communications between the processors take $\lambda$ units of time.
         \item $\mathcal{W}_i(t) \in [1,2,...]$ the amount of work on processor $P_i$ at time $t$.
         \item $\mathcal{W}(t) = \sum_{i=1}^{p} \mathcal{W}_i(t)$ the total amount of Work on all the processors. 
         \item $\mathcal{S}_i(t)$ the amount of Work in transit from $P_i$ at time $t$ to another stealer. 
@@ -343,6 +324,7 @@
     \end{block}
 \end{frame}
 
+\section{Analysis}
 \begin{frame}{Principle of the analysis (1)}
     \begin{columns} 
         \column{0.45\textwidth} 
@@ -365,33 +347,34 @@
 
 
 \begin{frame}{Principle of the analysis (2)}
-    The analysis is based on a \textbf{potential function} that represents \textit{how well the jobs are balanced in the system}.\\
-
-    Our potential function at time-step $k\lambda$ is denoted by $\phi(k)$ and it is defined as:
+    The analysis is based on a \textbf{potential function} that represents \textit{how well the jobs are balanced in the system}.
+    \begin{block}{Potential function}
+    Our potential function \textbf{at time-step \alert{$k\lambda$}} is denoted by $\phi(k)$ and : %it is defined as:
     \begin{equation*}
         \phi(k) = \sum_{i=1}^{p} \phi_i(k),  
         \text{ where $\phi_i(k) =
          \mathcal{W}_{i}(k\lambda)^{2} + 2\mathcal{S}_{i}(k\lambda)^{2}$ \quad for $i\in\{1\dots,p\}$}. 
     \end{equation*}
-    \bigskip
-    
+    \end{block}
+    \begin{columns} 
+        \column{0.55\textwidth} 
     \textbf{Properties}
     \begin{itemize}
         \item Always decreases. 
-        \item It is maximal at time 0, $\phi(0)= \mathcal{W}^2$
+        \item Its maximal at time 0, $\phi(0)= \mathcal{W}^2$
         \item Becomes $0$ at the end of schedule. 
         \item Decreases according to each processor event (executing work, sending or answering steal request) 
     \end{itemize}
-    
+        \column{0.45\textwidth} 
     \textbf{Analysis method}\\
 
     \alert{ We analyse how much each case contributes to the decrease of the potential between \alert{$\lambda k$} and \alert{$\lambda(k+1)$}}
-
+    \end{columns}
 \end{frame}
 \begin{frame}{Principe of the analysis}
 
 \begin{alertblock}{Lemme 1}
-        We denote by $\mathcal{F}_{k}$ all events up to the interval
+    We denote by $\mathcal{F}_{k}$ all events up to the interval $((k-1)\lambda$, $\lambda k$]
 
         For all steps $k$, the expected ratio between $\phi(k+1)$ and $\phi(k)$ knowing $\mathcal{F}_{k}$ is bounded by: 
         \begin{equation*}
@@ -401,12 +384,12 @@
 
 
         Where $q(r_k)$ is the probability for a processor to receive one
-        or more steal requests in the interval $[\lambda(k-1),\lambda k]$ knowing that there are $r_k$ incoming steal requests.
+        or more steal requests in the interval $((k-1)\lambda,k\lambda]$ knowing that there are $r_k$ incoming steal requests.
         \begin{equation*}
             q(r_k) = 1 - \left(\frac{p-2}{p-1}\right)^{r_k}
             \label{expdiff}
         \end{equation*}
-        The worst case of $q(r_k)$ is maximal when all the processors send a steal request ($r_k=p-1$)
+       % The worst case of $q(r_k)$ is maximal when all the processors send a steal request ($r_k=p-1$)
         
         \end{alertblock}
 \end{frame}
@@ -416,7 +399,7 @@
         \begin{itemize}
             \item Using :
         \begin{itemize}
-            \item The potential function at time 0 and at the end of schedule
+            \item The potential function at time 0 \alert{($\mathcal{W}^2$)} and at the end of schedule \alert{(0)}
             \item The result of lemme 1.
         \end{itemize}
     \item We bound the expected number of steal request between $0$ and the end of schedule.
@@ -428,6 +411,7 @@
         \end{itemize}
 \end{frame}
 
+\section{Experimental Results}
 \begin{frame}{Experimental Results}
 
         \begin{equation*}   
@@ -503,22 +487,18 @@
                   \item  [\scriptsize\raise1.25pt\hbox{\donotcoloroutermaths$\blacktriangleright$}]
                       \alert{Because in the theoretical bound of the second term, we major the number of processors,
                       which makes the born independent to the number of processors, 
-                      but it still reacted on the practical terminal. }
+                      but it still reacted on the simulation results. }
             \end{itemize}
 
 \end{frame}
 
-
-
-
-
-
+ \section{Conclusion}
     \begin{frame}{Conclusion and Perspective}
         \textbf{Conclusion}
             \begin{itemize}
-                \item Create a new realistic scheduling model for distributed-memory cluster of $p$ identical processors including latency $\lambda$
-                \item Analyse this model and provide an upper bound of the Makespan  
-                \item Provide simulation results to assess this bound. 
+                \item Created a new realistic scheduling model for distributed-memory cluster of $p$ identical processors including latency $\lambda$
+                \item Analyzed this model and provide an upper bound of the Makespan  
+                \item Provided simulation results to assess this bound. 
             \end{itemize}
 
             \textbf{Perspective}
@@ -531,10 +511,17 @@
                 \item Communication cost inside clusters is small
                 \item Communication cost outside clusters is important
             \end{itemize}
+
     \end{frame}
 
 
-
+\begin{frame}
+    \begin{center}
+                Tank you,\\
+                Our paper is available on Arxiv : $https://arxiv.org/abs/1805.00857 $\\ 
+                E-mail : khatiri.med@gmail.com\\
+    \end{center}
+\end{frame}
 
 
 
