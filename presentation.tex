@@ -91,7 +91,7 @@
 % - Use the \inst command only if there are several affiliations.
 % - Keep it simple, no one is interested in your street address.
 
-\date{16 juin 2018 \\ \textbf{ECCO XXXI - CO 2018}}
+\date{16 juin 2018 \\ \textbf{ECCO XXXI - CO 2018, Fribourg}}
 % - Either use conference name or its abbreviation.
 % - Not really informative to the audience, more for people (including
 %   yourself) who are reading the slides online
@@ -255,7 +255,7 @@
 \begin{frame}{Problem}
     \begin{alertblock}{Problem}
         \begin{itemize}
-            \item When the communication cost is not ignored, the steal work takes more than one unit of time. \\
+            \item When the communication cost is not ignored, steal work takes more than one unit of time. \\
             \item The stealer takes more time to receive the answer from the victim. 
             \item The stealer must wait several time steps before receiving the answer. 
         \end{itemize}
@@ -318,6 +318,7 @@
     
     \begin{block}{Theorem}
   %      Let $C_{max}$ be the Makespan. Then, deja dit...
+        Let $C_{max}$ be the Makespan of $n$ unit independent tasks scheduled by Work Stealing with latency algorithm, Then:
         \begin{equation*}   
             \mathbb{E}(C_{max}) \leq \frac{\mathcal{W}}{p} +  c\lambda\log_2(\frac{\mathcal{W}}{2\lambda}) + 3\lambda
         \end{equation*}             where $c \leq 16.12$ 
